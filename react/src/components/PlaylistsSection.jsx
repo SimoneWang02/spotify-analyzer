@@ -7,19 +7,18 @@ export default function PlaylistsSection(props) {
 
     const [tracks, setTracks] = useState()
 
-    const changeTracks = (values) => {
-        setTracks(values)
-    }
-
     const getTracks = async (key) => {
         await axios.get(playlistsItems[key].tracks.href, {
             headers: {
                 Authorization: `Bearer ${props.token}`
             },
         }).then(async res => {
+            // Remove local tracks (since they don't have audio features)
             var stringIDs = ""
-            res.data.items.map((element) => {
-                stringIDs += element.track.id + ','
+            res.data.items = res.data.items.filter((element) => {
+                if (!element.is_local)
+                    stringIDs += element.track.id + ','
+                return !element.is_local
             })
 
             const {data} = await axios.get(`${import.meta.env.VITE_SPOTIFY_API_BASE_URL}/audio-features`, {
@@ -50,7 +49,7 @@ export default function PlaylistsSection(props) {
                     )
                 }
             </div>
-            { tracks && <TracksList tracks={tracks} function={changeTracks} /> }
+            { tracks && <TracksList tracks={tracks} /> }
         </div>
     ) 
 }

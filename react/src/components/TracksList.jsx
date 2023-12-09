@@ -2,6 +2,7 @@ import { Table } from "@mantine/core"
 import { useRef, useEffect, useState } from "react"
 
 export default function TracksList(props) {
+    const [flag, setFlag] = useState()
     const tableTracksRef = useRef()
     var tracks = props.tracks?.items
 
@@ -10,8 +11,23 @@ export default function TracksList(props) {
     }, [])
 
     const sortByName = () => {
-        props.tracks.items = [...tracks].sort((a, b) => a.track.name > b.track.name ? 1 : -1)
-        props.function(props.tracks)
+        if (flag != 'name') {
+            props.tracks.items = [...tracks].sort((a, b) => a.track.name > b.track.name ? 1 : -1)
+            setFlag('name')
+        } else {
+            props.tracks.items = [...tracks].sort((a, b) => a.track.name < b.track.name ? 1 : -1)
+            setFlag(null)
+        }
+    }
+
+    const sortByBPM = () => {
+        if (flag != 'bpm') {
+            props.tracks.items = [...tracks].sort((a, b) => a.audio_features?.tempo - b.audio_features?.tempo)
+            setFlag('bpm')
+        } else {
+            props.tracks.items = [...tracks].sort((a, b) => b.audio_features?.tempo - a.audio_features?.tempo)
+            setFlag(null)
+        }
     }
 
     const rows = tracks.map((element) => {
@@ -30,7 +46,7 @@ export default function TracksList(props) {
                 <Table.Tr>
                     <Table.Th></Table.Th>
                     <Table.Th onClick={sortByName}>Name</Table.Th>
-                    <Table.Th>BPM</Table.Th>
+                    <Table.Th onClick={sortByBPM}>BPM</Table.Th>
                 </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>
