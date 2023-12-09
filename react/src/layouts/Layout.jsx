@@ -4,7 +4,7 @@ import NavigationBar from '../components/NavigationBar';
 export default function Layout() {
     return (
         <>
-            <NavigationBar />
+            {/* <NavigationBar /> */}
             <Outlet />
         </>
     )

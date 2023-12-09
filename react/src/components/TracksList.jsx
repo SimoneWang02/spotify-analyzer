@@ -1,12 +1,18 @@
 import { Table } from "@mantine/core"
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 
 export default function TracksList(props) {
-    if (!props.tracks)
-        return
-
     const tableTracksRef = useRef()
-    const tracks = props.tracks.items
+    var tracks = props.tracks?.items
+
+    useEffect(() => {
+        tableTracksRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, [])
+
+    const sortByName = () => {
+        props.tracks.items = [...tracks].sort((a, b) => a.track.name > b.track.name ? 1 : -1)
+        props.function(props.tracks)
+    }
 
     const rows = tracks.map((element) => {
         return (
@@ -17,19 +23,15 @@ export default function TracksList(props) {
             </Table.Tr>
         )
     })
-
-    useEffect(() => {
-        tableTracksRef.current?.scrollIntoView({ behavior: "smooth" })
-    })
-
+        
     return (
         <Table ref={tableTracksRef} className="scroll-mt-[60px]">
             <Table.Thead>
-            <Table.Tr>
-                <Table.Th></Table.Th>
-                <Table.Th>Name</Table.Th>
-                <Table.Th>BPM</Table.Th>
-            </Table.Tr>
+                <Table.Tr>
+                    <Table.Th></Table.Th>
+                    <Table.Th onClick={sortByName}>Name</Table.Th>
+                    <Table.Th>BPM</Table.Th>
+                </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>
         </Table>

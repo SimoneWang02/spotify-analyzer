@@ -5,8 +5,11 @@ import TracksList from './TracksList'
 export default function PlaylistsSection(props) {
     const playlistsItems = props.playlists?.items;
 
-    const tracksSectionRef = useRef();
     const [tracks, setTracks] = useState()
+
+    const changeTracks = (values) => {
+        setTracks(values)
+    }
 
     const getTracks = async (key) => {
         await axios.get(playlistsItems[key].tracks.href, {
@@ -36,10 +39,6 @@ export default function PlaylistsSection(props) {
         })
     }
 
-    const handleClick = () => {
-        tracksSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-
     if (props.playlists)
     return (
         <div className='bg-yellow-400'>
@@ -51,10 +50,7 @@ export default function PlaylistsSection(props) {
                     )
                 }
             </div>
-
-            <div ref={tracksSectionRef} >
-                <TracksList tracks={tracks} />
-            </div>
+            { tracks && <TracksList tracks={tracks} function={changeTracks} /> }
         </div>
     ) 
 }
