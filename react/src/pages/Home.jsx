@@ -1,22 +1,26 @@
 import axiosClient from "../axios-client";
 import { useEffect, useRef, useState } from "react"
 import axios from "axios"
+import LoginScreen from "../components/LoginScreen";
+import NavigationBar from "../components/NavigationBar";
+import PlaylistsSection from "../components/PlaylistsSection";
 
 export default function Home() {
-    const CLIENT_ID = import.meta.env.VITE_CLIENT_ID
-    const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URI
-    const AUTH_ENDPOINT = import.meta.env.VITE_AUTH_ENDPOINT
-    const RESPONSE_TYPE = import.meta.env.VITE_RESPONSE_TYPE
-
     const [token, setToken] = useState()
     const [tracks, setTracks] = useState()
     const [tempos, setTempos] = useState()
+    const [playlists, setPlaylists] = useState()
 
     const playlist_id = useRef()
 
     useEffect(() => {
         getAccessToken()
     }, [])
+
+    useEffect(() => {
+        if (token)
+            getUserPlaylists()
+    }, [token])
 
     // Store ACCESS_TOKEN to remember the authentication
     const getAccessToken = () => {
@@ -37,6 +41,16 @@ export default function Home() {
     const logout = () => {
         setToken("")
         window.localStorage.removeItem("token")
+    }
+
+    const getUserPlaylists = async () => {
+        const {data} = await axios.get(`${import.meta.env.VITE_SPOTIFY_API_BASE_URL}/me/playlists`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+        })
+
+        setPlaylists(data)
     }
 
     const getPlaylist = async (e) => {
@@ -71,16 +85,21 @@ export default function Home() {
         setTempos(data.audio_features)
     }
 
+    if (!token)
     return (
-        <div className="p-10">
-            {!token 
-                ? <a href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`}>Login to Spotify</a>
-                : <button onClick={logout}>Logout</button>
+        <LoginScreen />
+    )
+
+    return (
+        <div className="px-[60px]">
+            <PlaylistsSection playlists={playlists} token={token} />
+
+            { token && false &&
+                <form onSubmit={getPlaylist}>
+                    <input ref={playlist_id} value="6InOGBdQhdtym3ybFEEBNn" className="bg-black text-white px-4 py-2 w-[70%]" placeholder="Playlist ID" />
+                    <button className="bg-black text-white px-4 py-2 ml-2" type="submit">Submit</button>
+                </form>
             }
-            <form onSubmit={getPlaylist}>
-                <input ref={playlist_id} value="6InOGBdQhdtym3ybFEEBNn" className="bg-black text-white px-4 py-2 w-[70%]" placeholder="Playlist ID" />
-                <button className="bg-black text-white px-4 py-2 ml-2" type="submit">Submit</button>
-            </form>
 
             {
                 tracks &&
