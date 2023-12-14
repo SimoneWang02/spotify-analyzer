@@ -49,6 +49,7 @@ export default function PlaylistsSection(props) {
                     )
                 }
             </div>
+            
             { tracks && <TracksList tracks={tracks} /> }
         </div>
     ) 

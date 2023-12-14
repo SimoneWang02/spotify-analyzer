@@ -40,13 +40,17 @@ export default function Home() {
     }
 
     const getUserPlaylists = async () => {
-        const {data} = await axios.get(`${import.meta.env.VITE_SPOTIFY_API_BASE_URL}/me/playlists`, {
+        await axios.get(`${import.meta.env.VITE_SPOTIFY_API_BASE_URL}/me/playlists`, {
             headers: {
                 Authorization: `Bearer ${token}`
             },
         })
-
-        setPlaylists(data)
+        .then(res => setPlaylists(res.data))
+        .catch(err => {
+            // If token expired, then logout
+            if (err.response.status == '401')
+                logout()
+        })
     }
 
     if (!token)
@@ -60,8 +64,6 @@ export default function Home() {
 
             <div className="px-[60px]">
                 <PlaylistsSection playlists={playlists} token={token} />
-
-                
             </div>
         </div>
     )
