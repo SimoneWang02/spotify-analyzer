@@ -1,4 +1,4 @@
-import { Table } from "@mantine/core"
+import { Table, TextInput } from "@mantine/core"
 import { useRef, useEffect, useState } from "react"
 import { RangeSlider } from "@mantine/core"
 
@@ -7,8 +7,10 @@ export default function TracksList(props) {
     const [audio, setAudio] = useState()
     const [tracks_copy, setTracksCopy] = useState({...props.tracks})
 
+    // Filter
     const [default_range, setDefaultRange] = useState()
     const [range, setRange] = useState()
+    const [search, setSearch] = useState()
 
     const time_tracked = useRef()
     const tracks_table = useRef()
@@ -47,6 +49,15 @@ export default function TracksList(props) {
             setSortFlag(null)
         }
     }, [range])
+
+    useEffect(() => {
+        if (search) {
+            tracks_copy.items = props.tracks.items.filter(val => val.track.name.toLowerCase().includes(search))
+        } else {
+            tracks_copy.items = props.tracks.items
+        }
+        setSortFlag(null)
+    }, [search])
 
     const sortByName = () => {
         if (sort_flag != 'name') {
@@ -91,8 +102,9 @@ export default function TracksList(props) {
     return (
         <>
             { range && 
-                <div className="bg-green-500 p-10 flex justify-center">
-                    <RangeSlider labelAlwaysOn className='w-full' minRange={5} value={range} min={default_range[0]} max={default_range[1]} onChange={setRange} />
+                <div className="bg-green-500 p-10 flex justify-center gap-6">
+                    <TextInput className="w-1/3 " placeholder="Search" onChange={val => setSearch(val.currentTarget.value)} />
+                    <RangeSlider labelAlwaysOn className='w-full self-center' minRange={5} value={range} min={default_range[0]} max={default_range[1]} onChange={setRange} />
                 </div>
             }
 
