@@ -89,15 +89,21 @@ export default function TracksList(props) {
         }
     }
 
-    const rows = tracks_copy.items.map((element) => {
+    const rows = tracks_copy.items.length > 0 
+    ? tracks_copy.items.map((element) => {
         return (
             <Table.Tr key={element.track.id}>
-                <Table.Td><img onClick={() => handleAudio(element.track.preview_url)} className="w-16 aspect-square" src={element.track.album.images[0]?.url} /></Table.Td>
-                <Table.Td>{element.track.name}</Table.Td>
-                <Table.Td>{element.audio_features?.tempo ? Math.round(element.audio_features?.tempo) : ""}</Table.Td>
+                <Table.Td className="w-[15%]"><img onClick={() => handleAudio(element.track.preview_url)} className="w-16 aspect-square" src={element.track.album.images[0]?.url} /></Table.Td>
+                <Table.Td className="w-[75%]">{element.track.name}</Table.Td>
+                <Table.Td className="w-[10%]">{element.audio_features?.tempo ? Math.round(element.audio_features?.tempo) : ""}</Table.Td>
             </Table.Tr>
         )
     })
+    : <Table.Tr>
+        <Table.Td className="w-full text-center" colSpan={3}>
+            <p className="py-4">Songs Not Found</p>
+        </Table.Td>
+    </Table.Tr>
         
     return (
         <>
