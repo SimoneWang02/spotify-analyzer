@@ -1,66 +1,92 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Moodify (Spotify Analyzer)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A web app that connects to your Spotify account and lets you explore your playlists by tempo (BPM). Pick a playlist, then search, sort and filter its songs.
 
-## About Laravel
+> **Status: not maintained.** Built in December 2023 and not updated for Spotify's later API changes. Login, BPM data and song previews are not expected to work today. See [Spotify API changes](#spotify-api-changes).
+>
+> **Pre-AI project:** I wrote the app code without AI tools.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Spotify login:** connect with your Spotify account and log out from the navigation bar
+- **Playlists:** browse your playlists as a grid of covers
+- **BPM:** see the tempo of each song in a playlist
+- **Sort:** order songs by name or BPM, ascending or descending
+- **BPM filter:** narrow the list with a range slider
+- **Search:** find songs by name
+- **Preview:** click a cover to play a 30-second clip
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tech stack
 
-## Learning Laravel
+- [React 18](https://react.dev) with [Vite](https://vitejs.dev) and React Router
+- [Mantine](https://mantine.dev) and [Tailwind CSS](https://tailwindcss.com)
+- [Axios](https://axios-http.com) for requests to the [Spotify Web API](https://developer.spotify.com/documentation/web-api)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+The app is entirely in `react/` and calls Spotify directly from the browser. The rest of the repository is an unmodified Laravel 10 skeleton, set up for a future backend and not needed to run the app.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Project structure
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+react/src/
+├── pages/Home.jsx               # Access token, logout, loads playlists
+├── components/
+│   ├── LoginScreen.jsx          # Link to Spotify login
+│   ├── NavigationBar.jsx        # Logout button
+│   ├── PlaylistsSection.jsx     # Playlist grid, loads tracks and BPM
+│   └── TracksList.jsx           # Song table, sort, filter, search, preview
+├── layouts/Layout.jsx
+└── router.jsx
+```
 
-## Laravel Sponsors
+## Running locally
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+You need [Node.js](https://nodejs.org) and an app registered in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard), with `http://127.0.0.1:3000/` as a redirect URI.
 
-### Premium Partners
+1. Install the dependencies:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+   ```bash
+   git clone https://github.com/SimoneWang02/spotify-analyzer.git
+   cd spotify-analyzer/react
+   npm install
+   ```
 
-## Contributing
+2. Create `react/.env`:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   ```env
+   VITE_CLIENT_ID=your_spotify_client_id
+   VITE_REDIRECT_URI=http://127.0.0.1:3000/
+   VITE_SCOPE=playlist-read-private
+   VITE_AUTH_ENDPOINT=https://accounts.spotify.com/authorize
+   VITE_RESPONSE_TYPE=token
+   VITE_SPOTIFY_API_BASE_URL=https://api.spotify.com/v1
+   ```
 
-## Code of Conduct
+   Vite includes every `VITE_` variable in the browser code, so never put the Spotify client secret here.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+3. Start the app and open <http://127.0.0.1:3000>. Port 3000 must be free, because it has to match the redirect URI:
 
-## Security Vulnerabilities
+   ```bash
+   npm run dev -- --host 127.0.0.1 --strictPort
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Spotify API changes
 
-## License
+Spotify has changed several things this app depends on:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Login:** the app uses the implicit grant flow, which Spotify [scheduled for removal on November 27, 2025](https://developer.spotify.com/blog/2025-10-14-reminder-oauth-migration-27-nov-2025).
+- **BPM and previews:** audio features and 30-second previews were [restricted in November 2024](https://developer.spotify.com/blog/2024-11-27-changes-to-the-web-api) for new apps and most apps in development mode.
+- **Playlist tracks:** for apps in development mode, the playlist endpoints and fields were [renamed from `tracks` to `items` in February 2026](https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide).
+
+## Known issues
+
+- Uppercase letters in the search never match
+- Search and the BPM filter replace each other instead of combining
+- Only the first page of playlists and songs is loaded
+- Playlists without a cover, empty playlists and songs without audio features can crash the page
+
+## Possible next steps
+
+- Move login to Authorization Code with PKCE
+- Find another source for BPM data
+- Update the playlist requests to the current API
+- Fix the known issues above
